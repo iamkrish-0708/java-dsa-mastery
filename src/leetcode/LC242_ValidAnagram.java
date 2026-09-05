@@ -10,43 +10,48 @@ import java.util.Map;
  */
 public class LC242_ValidAnagram {
 
-    // Approach 1: Using Two HashMaps (Manual Entry Comparison)
-    // Time Complexity: O(N)
-    // Space Complexity: O(1) - At most 26 unique characters
-    public boolean isAnagramHashMap(String s, String t) {
-        if (s.length() != t.length()) {
-            return false;
-        }
+    // Approach 1: Using Two HashMaps (EntrySet Comparison)
+    // Time: O(N) | Space: O(1)
+    public boolean isAnagramTwoMaps(String s, String t) {
+        if (s.length() != t.length()) return false;
 
-        HashMap<Character, Integer> anagramChecker1 = new HashMap<>();
+        HashMap<Character, Integer> map1 = new HashMap<>();
         for (char ch : s.toCharArray()) {
-            anagramChecker1.put(ch, anagramChecker1.getOrDefault(ch, 0) + 1);
+            map1.put(ch, map1.getOrDefault(ch, 0) + 1);
         }
 
-        HashMap<Character, Integer> anagramChecker2 = new HashMap<>();
+        HashMap<Character, Integer> map2 = new HashMap<>();
         for (char ch : t.toCharArray()) {
-            anagramChecker2.put(ch, anagramChecker2.getOrDefault(ch, 0) + 1);
+            map2.put(ch, map2.getOrDefault(ch, 0) + 1);
         }
 
-        for (Map.Entry<Character, Integer> entry : anagramChecker2.entrySet()) {
-            Character key = entry.getKey();
-            Integer count = entry.getValue();
+        return map1.equals(map2);
+    }
 
-            if (!anagramChecker1.containsKey(key) || !anagramChecker1.get(key).equals(count)) {
-                return false;
-            }
+    // Approach 2: Single-Loop Balanced HashMap (+1 for s, -1 for t)
+    // Time: O(N) | Space: O(1)
+    public boolean isAnagramSingleMap(String s, String t) {
+        if (s.length() != t.length()) return false;
+
+        Map<Character, Integer> checkMap = new HashMap<>();
+        for (int i = 0; i < s.length(); i++) {
+            char sChar = s.charAt(i);
+            char tChar = t.charAt(i);
+            checkMap.put(sChar, checkMap.getOrDefault(sChar, 0) + 1);
+            checkMap.put(tChar, checkMap.getOrDefault(tChar, 0) - 1);
+        }
+
+        for (int count : checkMap.values()) {
+            if (count != 0) return false;
         }
 
         return true;
     }
 
-    // Approach 2: Optimal Fixed Frequency Array (int[26])
-    // Time Complexity: O(N) - 1ms Beats ~100%
-    // Space Complexity: O(1) - Exactly 26 integers
+    // Approach 3: Optimal Fixed Frequency Array (int[26])
+    // Time: O(N) (1ms - Beats ~100%) | Space: O(1)
     public boolean isAnagramOptimal(String s, String t) {
-        if (s.length() != t.length()) {
-            return false;
-        }
+        if (s.length() != t.length()) return false;
 
         int[] charCounts = new int[26];
 
@@ -56,9 +61,7 @@ public class LC242_ValidAnagram {
         }
 
         for (int count : charCounts) {
-            if (count != 0) {
-                return false;
-            }
+            if (count != 0) return false;
         }
 
         return true;
@@ -70,7 +73,7 @@ public class LC242_ValidAnagram {
         String s1 = "anagram", t1 = "nagaram";
         String s2 = "rat", t2 = "car";
 
-        System.out.println("Test 1 (Expected: true)  -> " + solver.isAnagramOptimal(s1, t1));
-        System.out.println("Test 2 (Expected: false) -> " + solver.isAnagramOptimal(s2, t2));
+        System.out.println("Test 1 (Expected: true)  -> " + solver.isAnagramSingleMap(s1, t1));
+        System.out.println("Test 2 (Expected: false) -> " + solver.isAnagramSingleMap(s2, t2));
     }
 }

@@ -5,17 +5,16 @@ package leetcode;
  * Difficulty: Easy (Top Interview 150 / Blind 75)
  * Link: https://leetcode.com/problems/sqrtx/
  * 
- * Approach: Binary Search on Monotonic Answer Range with Floor Tracking
- * 1. Search space for integer square root is [1, x] (with roundOff initialized to 0 for x = 0).
- * 2. Calculate mid safely: mid = s + (e - s) / 2.
- * 3. Cast to long: long check = (long) mid * mid to avoid 32-bit integer overflow.
- * 4. If check == x: exact square root found -> return mid.
- * 5. If check > x: mid is too large -> search left (e = mid - 1).
- * 6. If check < x: mid is a valid candidate for floor(sqrt(x)) -> record roundOff = mid and search right (s = mid + 1).
- * 7. Return roundOff when search space is exhausted.
+ * Approach: Binary Search with Division Math Trick (Zero 64-bit Long Allocation)
+ * 1. Early guard: If x == 0, return 0 (avoids division by zero).
+ * 2. Range: [1, x], floor candidate tracking with `roundOff`.
+ * 3. Use `mid == x / mid` instead of `mid * mid == x` to completely avoid 32-bit integer overflow.
+ * 4. If mid == x / mid: exact root -> return mid.
+ * 5. If mid > x / mid: mid is too large -> search left (e = mid - 1).
+ * 6. If mid < x / mid: valid floor candidate -> record roundOff = mid and search right (s = mid + 1).
  * 
  * Time Complexity: O(log x) - 1ms Beats 100%
- * Space Complexity: O(1) - Auxiliary space
+ * Space Complexity: O(1) - Pure 32-bit integer primitives
  */
 public class LC69_SqrtX {
 
@@ -23,12 +22,14 @@ public class LC69_SqrtX {
         int s = 1;
         int e = x;
         int roundOff = 0;
+        if (x == 0) {
+            return 0;
+        }
         while (s <= e) {
             int mid = s + (e - s) / 2;
-            long check = (long) mid * mid;
-            if (check == x) {
+            if (mid == x / mid) {
                 return mid;
-            } else if (check > x) {
+            } else if (mid > x / mid) {
                 e = mid - 1;
             } else {
                 roundOff = mid;
@@ -41,15 +42,15 @@ public class LC69_SqrtX {
     public static void main(String[] args) {
         LC69_SqrtX solver = new LC69_SqrtX();
 
-        // Test 1: Exact square root (4 -> 2)
+        // Test 1: x = 4 -> 2
         System.out.println("Test 1 (x = 4): " + solver.mySqrt(4));
         // Expected: 2
 
-        // Test 2: Floor square root (8 -> 2 since 2*2=4 <= 8 < 3*3=9)
+        // Test 2: x = 8 -> 2
         System.out.println("Test 2 (x = 8): " + solver.mySqrt(8));
         // Expected: 2
 
-        // Test 3: Edge case x = 0 (0 -> 0)
+        // Test 3: x = 0 -> 0
         System.out.println("Test 3 (x = 0): " + solver.mySqrt(0));
         // Expected: 0
 

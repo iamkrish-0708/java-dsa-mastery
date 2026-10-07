@@ -19,10 +19,10 @@ public class LC2011_FinalValueOfVariableAfterPerformingOperations {
     public int finalValueAfterOperations(String[] operations) {
         int X = 0;
         for (String str : operations) {
-            if (str.indexOf("-") != -1) {
-                X = X - 1;
+            if (str.charAt(1) == '-') {
+                X--;
             } else {
-                X = X + 1;
+                X++;
             }
         }
         return X;

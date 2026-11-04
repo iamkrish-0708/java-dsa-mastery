@@ -5,22 +5,51 @@ import java.util.List;
 
 // LeetCode #412 - Fizz Buzz
 // Difficulty: Easy (Classic Interview Screening Problem)
-// Problem: Given an integer n, return a string array answer (1-indexed) where:
-//          - answer[i] == "FizzBuzz" if i is divisible by 3 and 5.
-//          - answer[i] == "Fizz" if i is divisible by 3.
-//          - answer[i] == "Buzz" if i is divisible by 5.
-//          - answer[i] == i (as a string) if none of the above conditions are true.
-// Approach: Linear Simulation with Priority Divisibility Checks
-// Key Mechanics:
-//   - Checks the combined condition (i % 3 == 0 && i % 5 == 0) first to prevent
-//     prematurely matching single divisibility branches.
-//   - Uses String.valueOf(i) for safe, efficient integer-to-string conversion.
-// Complexity: O(N) Time (single pass from 1 to n), O(1) Auxiliary Space (excluding output list)
+// Problem: Given an integer n, return a string array answer (1-indexed).
+//
+// =================================================================================================
+// 🔍 EVOLUTION OF SOLUTIONS & INTERVIEW EXTENSIBILITY:
+// =================================================================================================
+//
+// Approach 1 (Standard If-Else Chain):
+//   - Checks (i % 3 == 0 && i % 5 == 0) first, then (i % 3 == 0), then (i % 5 == 0).
+//   - Limitation: Hard to scale! Adding more divisors (e.g., 7 -> "Jazz", 11 -> "Razz") causes an
+//     exponential combinatorial explosion of 2^K else-if branches.
+//
+// Approach 2 (String Concatenation / Modular Extensibility — Senior Interview Standard ⚡):
+//   - Uses StringBuilder to compose the string incrementally:
+//       * if (i % 3 == 0) sb.append("Fizz");
+//       * if (i % 5 == 0) sb.append("Buzz");
+//   - If i = 15, both conditions trigger automatically yielding "FizzBuzz" with ZERO combined checks!
+//   - If sb.isEmpty(), neither matched -> append i directly.
+//   - Scalable: Adding "Jazz" (7) or "Razz" (11) requires only 1 additional line, not 10 new else-if blocks!
+//
+// Complexity: O(N) Time, O(1) Auxiliary Space
 // Problem Link: https://leetcode.com/problems/fizz-buzz/
 
 public class LC412_FizzBuzz {
 
+    // Approach 2: Extensible String Concatenation Pattern
     public List<String> fizzBuzz(int n) {
+        List<String> ans = new ArrayList<>();
+        for (int i = 1; i <= n; i++) {
+            StringBuilder sb = new StringBuilder();
+            if ((i % 3) == 0) {
+                sb.append("Fizz");
+            }
+            if ((i % 5) == 0) {
+                sb.append("Buzz");
+            }
+            if (sb.isEmpty()) {
+                sb.append(i);
+            }
+            ans.add(sb.toString());
+        }
+        return ans;
+    }
+
+    // Approach 1: Initial Priority Divisibility Checks
+    public List<String> fizzBuzzIfElse(int n) {
         List<String> ans = new ArrayList<>();
         for (int i = 1; i <= n; i++) {
             if ((i % 3) == 0 && (i % 5) == 0) {

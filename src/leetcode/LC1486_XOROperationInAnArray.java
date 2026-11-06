@@ -7,29 +7,41 @@ package leetcode;
 //          XOR of all elements of nums.
 //
 // =================================================================================================
-// 🔍 EVOLUTION OF SOLUTIONS (KRISH'S WORK):
+// 🔍 EVOLUTION OF SOLUTIONS (KRISH'S FULL INDEPENDENT PROGRESSION):
 // =================================================================================================
 //
 // Approach 1 (Initial Two-Pass Solve - 1 ms):
 //   - Pass 1: Allocated int[] nums = new int[n] and populated nums[i] = start + 2 * i.
 //   - Pass 2: Iterated from 1 to n - 1 accumulating xor = xor ^ nums[i].
-//   - Result: Passed, but took 1 ms due to separate loop passes over the array.
+//   - Result: 1 ms due to separate loop passes over the array.
 //
-// Approach 2 (Krish's Single-Pass Optimization - 0 ms Beats 100% ⚡):
+// Approach 2 (Single-Pass Loop Optimization - 0 ms Beats 100% ⚡):
 //   - Combined element calculation and XOR accumulation into a single forward loop.
-//   - nums[0] initialized to start, xor initialized to nums[0].
-//   - From i = 1 to n - 1: calculates nums[i] = start + (2 * i) and accumulates xor = xor ^ nums[i] on the fly!
-//   - Result: 0 ms runtime!
+//   - Populated nums[i] and accumulated xor in the same iteration.
+//   - Complexity: O(N) Time, O(N) Space.
 //
-// Complexity:
-//   - Time: O(N) linear time (single pass)
-//   - Space: O(N) array allocation
-// Problem Link: https://leetcode.com/problems/xor-operation-in-an-array/
+// Approach 3 (Krish's O(1) Space Optimization - 0 ms ⚡):
+//   - Realized that 'nums' array is never actually returned or needed in memory!
+//   - Eliminated int[] nums allocation entirely.
+//   - Initialized xor = start, then looped from i = 1 to n - 1 computing int num = start + (2 * i)
+//     directly on the stack and accumulating into xor.
+//   - Complexity: O(N) Time, O(1) Auxiliary Space!
+// =================================================================================================
 
 public class LC1486_XOROperationInAnArray {
 
-    // Approach 2: Krish's 0ms Single-Pass Solution
+    // Approach 3: Krish's O(1) Space-Optimized Solution (0 ms Beats 100%)
     public int xorOperation(int n, int start) {
+        int xor = start;
+        for (int i = 1; i < n; i++) {
+            int num = start + (2 * i);
+            xor = xor ^ num;
+        }
+        return xor;
+    }
+
+    // Approach 2: Krish's Single-Pass Array Solution (0 ms)
+    public int xorOperationSinglePass(int n, int start) {
         int[] nums = new int[n];
         nums[0] = start;
         int xor = nums[0];
@@ -40,7 +52,7 @@ public class LC1486_XOROperationInAnArray {
         return xor;
     }
 
-    // Approach 1: Krish's Initial 1ms Two-Pass Solution
+    // Approach 1: Krish's Initial Two-Pass Solution (1 ms)
     public int xorOperationTwoPass(int n, int start) {
         int[] nums = new int[n];
         for (int i = 0; i < n; i++) {

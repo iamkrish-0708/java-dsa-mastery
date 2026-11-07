@@ -7,37 +7,53 @@ package leetcode;
 //          Return true if you can reach the last index, or false otherwise.
 //
 // =================================================================================================
-// 🔍 ARCHITECTURAL COMPARISON & POST-MORTEM:
+// 🔍 EVOLUTION OF SOLUTIONS (KRISH'S LEARNING PROGRESSION):
 // =================================================================================================
 //
-// ❌ Flaws in Raw Initial Attempt:
-//   1. Checked only exact jump: (i + nums[i] == size), ignoring that nums[i] represents the
-//      MAXIMUM jump (we can take any jump from 1 to nums[i]).
-//   2. Simply did solve(nums, size, i + 1), which falsely assumed index i + 1 was reachable
-//      without verifying if any prior jump could land there.
-//
-// ✅ Approach 1 (Recursive Multi-Choice Branching - Lecture 65):
+// Approach 1 (Lecture 65 - Pure Recursion Multi-Choice Branching):
 //   - From current index, explore all valid jumps from 1 up to nums[index].
 //   - Transition: solve(nums, index + jump).
-//   - Base Cases:
-//       * index == nums.length - 1 -> return true (reached the end!)
-//       * index >= nums.length -> return false (jumped out of bounds)
-//       * nums[index] == 0 -> return false (stuck at 0, cannot jump forward)
-//   - Short-circuit optimization: If any recursive call returns true, return true IMMEDIATELY
-//     without exploring remaining jumps.
+//   - Complexity: O(K^N) exponential time -> Hits expected TLE on large arrays.
 //
-// Status: Pure recursion hits expected TLE on large arrays (O(K^N) exponential combinations).
-//         Optimized in DP to O(N^2), and with Greedy to O(N) time and O(1) space!
-// Complexity (Pure Recursion):
-//   - Time: O(2^N) / O(K^N) exponential
-//   - Space: O(N) auxiliary call stack depth
+// Approach 2 (Krish's Greedy Petrol-Pump Iteration - 3 ms Beats ~75% ⚡):
+//   - Mental Analogy (Car & Petrol Pumps):
+//       * Moving one step forward burns 1 unit of fuel (jumpVal--).
+//       * At each index i, a petrol pump offers nums[i] fuel.
+//       * We refill only if the pump offers more than our current tank:
+//         jumpVal = Math.max(jumpVal, nums[i]).
+//       * If jumpVal == 0 before moving, the car is stranded and cannot reach index i -> return false!
+//   - Naturally handles single-element edge case nums = [0] because loop starts at i = 1,
+//     skipping the loop and returning true immediately!
+//
+// Complexity:
+//   - Time: O(N) single forward pass through the array.
+//   - Space: O(1) Auxiliary Space (pure primitive variables).
 // Problem Link: https://leetcode.com/problems/jump-game/
 
 public class LC55_JumpGame {
 
-    // Approach 1: Recursive Multi-Choice Jump Exploration with Early Exit
+    // Approach 2: Greedy Petrol-Pump Forward Scan (3 ms ⚡ - O(N) Time, O(1) Space)
+    public boolean canJump(int[] nums) {
+        int jumpVal = nums[0];
+
+        for (int i = 1; i < nums.length; i++) {
+            // Stranded with 0 fuel: cannot reach or advance past index i
+            if (jumpVal == 0) {
+                return false;
+            }
+
+            // Burn 1 unit of fuel to step forward
+            jumpVal--;
+
+            // Refill if current pump has more fuel
+            jumpVal = Math.max(jumpVal, nums[i]);
+        }
+
+        return true;
+    }
+
+    // Approach 1: Recursive Multi-Choice Jump Exploration (Lecture 65 - TLE)
     static boolean solve(int[] nums, int index) {
-        // Base cases
         if (index == nums.length - 1) {
             return true;
         }
@@ -46,30 +62,12 @@ public class LC55_JumpGame {
         }
 
         int jumpVal = nums[index];
-
-        // Try every legal jump length from 1 to jumpVal
         for (int jump = 1; jump <= jumpVal; jump++) {
             if (solve(nums, index + jump)) {
-                return true; // Early exit on first successful path
+                return true;
             }
         }
-
         return false;
-    }
-
-    public boolean canJump(int[] nums) {
-        return solve(nums, 0);
-    }
-
-    // Raw Attempt (Kept for documentation of learning pitfalls)
-    static boolean solveRaw(int[] nums, int size, int i) {
-        if (i > size) {
-            return false;
-        }
-        if ((i + nums[i]) == size) {
-            return true;
-        }
-        return solveRaw(nums, size, i + 1);
     }
 
     public static void main(String[] args) {
@@ -79,5 +77,8 @@ public class LC55_JumpGame {
 
         int[] nums2 = {3, 2, 1, 0, 4};
         System.out.println("Output 2: " + solver.canJump(nums2)); // Expected: false
+
+        int[] nums3 = {0};
+        System.out.println("Output 3: " + solver.canJump(nums3)); // Expected: true
     }
 }

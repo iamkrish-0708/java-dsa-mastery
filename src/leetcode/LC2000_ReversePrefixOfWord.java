@@ -7,26 +7,24 @@ package leetcode;
 //          ch does not exist in word, do nothing. Return the resulting string.
 //
 // =================================================================================================
-// 💡 TECHNIQUE: DUAL STRINGBUILDER PREFIX REVERSAL (KRISH'S SOLVE - 2 ms ⚡)
+// 💡 TECHNIQUE: SINGLE STRINGBUILDER PREFIX REVERSAL & IN-PLACE SUFFIX APPEND (KRISH - 1 ms ⚡)
 // =================================================================================================
-// - Mechanics:
-//     1. Use sb1 to accumulate characters up to and including the first occurrence of ch.
-//     2. When ch is encountered, append it, reverse sb1 in-place, and break.
-//     3. If ch is not found, sb1 never reverses, correctly preserving the original word order.
-//     4. Use sb2 to accumulate the remaining suffix of word.
-//     5. Concatenate and return sb1.toString() + sb2.toString().
+// - Optimization Insight:
+//     Instead of allocating two separate StringBuilders and concatenating them, we accumulate
+//     the prefix into sb1, reverse it upon finding ch, and then continue appending the rest
+//     of the word directly into the same sb1 buffer!
+// - If ch is not found, sb1 never reverses, cleanly preserving the original string.
 //
 // Complexity:
-//   - Time Complexity: O(N) — Linear traversal over word of length N.
-//   - Space Complexity: O(N) Auxiliary Space — for sb1 and sb2 buffers.
+//   - Time Complexity: O(N) — Single linear scan over word of length N.
+//   - Space Complexity: O(N) Auxiliary Space — Only a single StringBuilder buffer.
 // =================================================================================================
 
 public class LC2000_ReversePrefixOfWord {
 
+    // Krish's Optimized 1 ms Solution (Single StringBuilder)
     public String reversePrefix(String word, char ch) {
         StringBuilder sb1 = new StringBuilder();
-        StringBuilder sb2 = new StringBuilder();
-        String ans = "";
         int i = 0;
         while (i < word.length()) {
             if (word.charAt(i) == ch) {
@@ -39,11 +37,10 @@ public class LC2000_ReversePrefixOfWord {
             i++;
         }
         while (i < word.length()) {
-            sb2.append(word.charAt(i));
+            sb1.append(word.charAt(i));
             i++;
         }
-        ans = sb1.toString() + sb2.toString();
-        return ans;
+        return sb1.toString();
     }
 
     // Local Test Harness

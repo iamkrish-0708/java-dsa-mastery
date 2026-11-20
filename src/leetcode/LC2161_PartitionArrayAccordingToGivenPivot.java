@@ -13,25 +13,58 @@ import java.util.List;
 //          Return nums after the rearrangement.
 //
 // =================================================================================================
-// 💡 TECHNIQUE: THREE-WAY STABLE PARTITIONING (KRISH'S SOLVE - 12 ms ⚡ / OPTIMAL 2 ms ⚡)
+// 💡 TECHNIQUE: THREE-WAY STABLE PARTITIONING (KRISH'S EVOLUTION: 12 ms ➔ 5 ms ⚡)
 // =================================================================================================
-// - Approach 1: List Partitioning with Dynamic Middle Derivation (Krish - 12 ms)
-//     * Collect elements < pivot into tempI and elements > pivot into tempE.
-//     * Write tempI to nums.
-//     * Clever Middle Derivation: while (nums.length - ptr != tempE.size()), fill nums[ptr] = pivot.
-//     * Write tempE to nums.
+// - Approach 2 (Optimal - 5 ms): Primitive Array Three-Pass Scan
+//     * Directly populates a single flat int[] ans array in 3 linear passes:
+//         Pass 1: Elements < pivot
+//         Pass 2: Elements == pivot
+//         Pass 3: Elements > pivot
+//     * Completely bypasses ArrayList autoboxing, dynamic resizing, and unboxing overhead.
 //     * Time Complexity: O(N), Space Complexity: O(N).
 //
-// - Approach 2: Primitive Array Three-Pass Scan (Optimal - 2 ms Beats 100% ⚡)
-//     * Avoids ArrayList autoboxing/unboxing tax.
-//     * Pass 1 (< pivot) -> Pass 2 (== pivot) -> Pass 3 (> pivot) directly into new int[nums.length].
+// - Approach 1 (Initial - 12 ms): Dual List Partitioning with Dynamic Middle Calculation
+//     * Separates into tempI (< pivot) and tempE (> pivot).
+//     * Uses the clever dynamic remaining check: while (nums.length - ptr != tempE.size()), fill pivot.
 //     * Time Complexity: O(N), Space Complexity: O(N).
 // =================================================================================================
 
 public class LC2161_PartitionArrayAccordingToGivenPivot {
 
-    // Approach 1: Krish's Solution (12 ms)
+    // Approach 2: Krish's 3-Pass Primitive Array Solution (5 ms)
     public int[] pivotArray(int[] nums, int pivot) {
+        int[] ans = new int[nums.length];
+        int ptr = 0;
+
+        // less than pivot
+        for (int n : nums) {
+            if (n < pivot) {
+                ans[ptr] = n;
+                ptr++;
+            }
+        }
+
+        // equal to pivot
+        for (int n : nums) {
+            if (n == pivot) {
+                ans[ptr] = n;
+                ptr++;
+            }
+        }
+
+        // greater than pivot
+        for (int n : nums) {
+            if (n > pivot) {
+                ans[ptr] = n;
+                ptr++;
+            }
+        }
+
+        return ans;
+    }
+
+    // Approach 1: Krish's Dual List Solution (12 ms)
+    public int[] pivotArrayDualList(int[] nums, int pivot) {
         List<Integer> tempI = new ArrayList<>();
         List<Integer> tempE = new ArrayList<>();
         for (int i = 0; i < nums.length; i++) {
@@ -59,34 +92,16 @@ public class LC2161_PartitionArrayAccordingToGivenPivot {
         return nums;
     }
 
-    // Approach 2: Optimal Primitive Array (2 ms)
-    public int[] pivotArrayOptimal(int[] nums, int pivot) {
-        int[] ans = new int[nums.length];
-        int ptr = 0;
-
-        for (int n : nums) {
-            if (n < pivot) ans[ptr++] = n;
-        }
-        for (int n : nums) {
-            if (n == pivot) ans[ptr++] = n;
-        }
-        for (int n : nums) {
-            if (n > pivot) ans[ptr++] = n;
-        }
-
-        return ans;
-    }
-
     // Local Test Harness
     public static void main(String[] args) {
         LC2161_PartitionArrayAccordingToGivenPivot solver = new LC2161_PartitionArrayAccordingToGivenPivot();
 
-        // Test 1: [9,12,5,10,14,3,10], pivot = 10 -> [5,3,9,10,10,12,14] (relative order preserved)
+        // Test 1: [9,12,5,10,14,3,10], pivot = 10 -> [9,5,3,10,10,12,14]
         int[] nums1 = {9, 12, 5, 10, 14, 3, 10};
-        System.out.println("Test 1: " + Arrays.toString(solver.pivotArray(nums1, 10)));
+        System.out.println("Test 1 (5 ms): " + Arrays.toString(solver.pivotArray(nums1, 10)));
 
         // Test 2: [-3,4,3,2], pivot = 2 -> [-3,2,4,3]
         int[] nums2 = {-3, 4, 3, 2};
-        System.out.println("Test 2: " + Arrays.toString(solver.pivotArray(nums2, 2)));
+        System.out.println("Test 2 (5 ms): " + Arrays.toString(solver.pivotArray(nums2, 2)));
     }
 }

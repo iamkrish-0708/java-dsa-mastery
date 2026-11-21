@@ -9,15 +9,15 @@ import java.util.Arrays;
 //          solutions to the n-queens puzzle.
 //
 // =================================================================================================
-// 💡 TECHNIQUE: BACKTRACKING SOLUTION COUNTING (KRISH'S SOLVES - 2 ms / OPTIMAL 1 ms ⚡)
+// 💡 TECHNIQUE: BACKTRACKING SOLUTION COUNTING (KRISH'S SOLVES - 2 ms ⚡)
 // =================================================================================================
-// - Approach 1: Mutable Buffer Counter (Krish's Inventive "Jugaad" - 2 ms ⚡)
-//     * Since Java primitives (int) are passed by value, Krish leveraged pass-by-reference of
-//       StringBuilder by appending a token ('+') at each leaf: solutions.append('+').
-//       Final answer is simply solutions.length()!
+// - Approach 1: 1-Element Array Reference Trick (Krish - 2 ms ⚡)
+//     * In Java, primitive ints are passed by value. By wrapping the counter in an array of size 1
+//       (int[] count = new int[1]), count[0] can be mutated by reference across recursive frames!
 //
-// - Approach 2: The 1-Element Array Reference Trick (2 ms)
-//     * Pass int[] count = new int[1] so count[0] can be incremented by reference.
+// - Approach 2: Mutable Buffer Counter (Krish's Inventive StringBuilder - 2 ms ⚡)
+//     * Leveraged pass-by-reference on a StringBuilder token accumulator: solutions.append('+').
+//       Final answer is solutions.length().
 //
 // - Approach 3: Subtree Accumulation / Functional Return (Optimal - 1 ms Beats 100% ⚡)
 //     * solve() returns int: leaf returns 1, and parent frames accumulate count += solve(...).
@@ -65,7 +65,33 @@ public class LC52_NQueensII {
         return true;
     }
 
-    // Approach 1: Krish's StringBuilder Counter (2 ms)
+    // Approach 1: Krish's 1-Element Array Reference Solution (2 ms)
+    static void solveArray(int[] count, char[][] board, int n, int colIndex) {
+        if (colIndex >= n) {
+            count[0] += 1;
+            return;
+        }
+
+        for (int rowIndex = 0; rowIndex < n; rowIndex++) {
+            if (safePosition(board, n, rowIndex, colIndex)) {
+                board[rowIndex][colIndex] = 'Q';
+                solveArray(count, board, n, colIndex + 1);
+                board[rowIndex][colIndex] = '.';
+            }
+        }
+    }
+
+    public int totalNQueens(int n) {
+        int[] count = new int[1];
+        char[][] board = new char[n][n];
+        for (int i = 0; i < n; i++) {
+            Arrays.fill(board[i], '.');
+        }
+        solveArray(count, board, n, 0);
+        return count[0];
+    }
+
+    // Approach 2: Krish's StringBuilder Counter Solution (2 ms)
     static void solveSB(StringBuilder solutions, char[][] board, int n, int colIndex) {
         if (colIndex >= n) {
             solutions.append('+');
@@ -81,7 +107,7 @@ public class LC52_NQueensII {
         }
     }
 
-    public int totalNQueens(int n) {
+    public int totalNQueensSB(int n) {
         StringBuilder solutions = new StringBuilder();
         char[][] board = new char[n][n];
         for (int i = 0; i < n; i++) {
@@ -120,13 +146,13 @@ public class LC52_NQueensII {
     public static void main(String[] args) {
         LC52_NQueensII solver = new LC52_NQueensII();
 
-        // Test 1: n = 4 -> 2
-        System.out.println("Test 1 (n = 4): " + solver.totalNQueens(4) + " (Expected: 2)");
+        // Test 1: n = 4 -> 2 (Array Reference Approach)
+        System.out.println("Test 1 Array Ref (n = 4): " + solver.totalNQueens(4) + " (Expected: 2)");
 
-        // Test 2: n = 1 -> 1
-        System.out.println("Test 2 (n = 1): " + solver.totalNQueens(1) + " (Expected: 1)");
+        // Test 2: n = 4 -> 2 (StringBuilder Approach)
+        System.out.println("Test 2 StringBuilder (n = 4): " + solver.totalNQueensSB(4) + " (Expected: 2)");
 
-        // Test 3: n = 8 -> 92 (Optimal Functional check)
-        System.out.println("Test 3 (n = 8): " + solver.totalNQueensOptimal(8) + " (Expected: 92)");
+        // Test 3: n = 8 -> 92 (Functional Approach)
+        System.out.println("Test 3 Functional (n = 8): " + solver.totalNQueensOptimal(8) + " (Expected: 92)");
     }
 }

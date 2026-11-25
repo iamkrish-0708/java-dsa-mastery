@@ -14,26 +14,24 @@ import java.util.Set;
 //          Return true if n is a happy number, and false if not.
 //
 // =================================================================================================
-// 💡 TECHNIQUE: CYCLE DETECTION VIA HASHSET (KRISH'S SOLVE - 2 ms ⚡)
+// 💡 TECHNIQUE: CYCLE DETECTION & MATHEMATICAL INVARIANT (KRISH'S EVOLUTION - 2 ms ➔ 1 ms ⚡)
 // =================================================================================================
-// - Mechanics:
+// - Mechanics & Evolution:
 //     1. Helper function solve(num): Peels digits using % 10 and / 10, accumulating sum of squares.
-//     2. Cycle Detection:
-//        An unhappy number is mathematically guaranteed to enter an infinite cycle (e.g., 4 -> 16 -> ... -> 4).
-//     3. Maintain a Set<Integer> seen:
-//        - At each step, if seen.contains(n), a cycle is detected -> return false.
-//        - Otherwise, add n to seen and advance n = solve(n).
-//     4. If n reaches 1, the while loop terminates and returns true.
-//
-// - O(1) Space Alternative (Floyd's Tortoise and Hare Cycle Finding):
-//     Instead of storing numbers in a HashSet, use two pointers:
-//     - slow moves 1 step: slow = solve(slow)
-//     - fast moves 2 steps: fast = solve(solve(fast))
-//     They will eventually meet if a cycle exists (just like in a circular linked list)!
+//     2. Approach 1 (HashSet - 2 ms):
+//        Detects loop repetition by storing visited numbers in a Set<Integer>.
+//     3. Approach 2 (Single-Digit Math Invariant - 1 ms / 0 ms ⚡):
+//        Mathematical proof shows all numbers eventually reduce to a single digit [1..9].
+//        Tracing each single digit reveals:
+//        - 1 -> 1 (Happy)
+//        - 7 -> 49 -> 97 -> 130 -> 10 -> 1 (Happy)
+//        - Every other single digit (2, 3, 4, 5, 6, 8, 9) is trapped in the famous 4-cycle:
+//          (4 -> 16 -> 37 -> 58 -> 89 -> 145 -> 42 -> 20 -> 4).
+//        Therefore, reduce until n <= 9, then check if n == 1 || n == 7!
 //
 // Complexity:
-//   - Time Complexity: O(log N) — The number of digits decreases rapidly (e.g. 999 -> 243 -> 29 -> ...).
-//   - Space Complexity: O(log N) Auxiliary Space for HashSet (or O(1) using Floyd's algorithm).
+//   - Time Complexity: O(log N) — Digits shrink rapidly.
+//   - Space Complexity: O(1) Auxiliary Space for the mathematical invariant approach.
 // =================================================================================================
 
 public class LC202_HappyNumber {
@@ -49,7 +47,7 @@ public class LC202_HappyNumber {
         return sum;
     }
 
-    // Approach 1: HashSet Cycle Detection (Krish's Accepted Solve - 2 ms)
+    // Approach 1: HashSet Cycle Detection (Krish's Initial Solve - 2 ms)
     public boolean isHappy(int n) {
         Set<Integer> seen = new HashSet<>();
         while (n != 1) {
@@ -62,7 +60,16 @@ public class LC202_HappyNumber {
         return true;
     }
 
-    // Approach 2: Floyd's Tortoise & Hare (O(1) Space, 1 ms Beats 100%)
+    // Approach 2: Single-Digit Mathematical Invariant (Krish's Optimized Solve - 1 ms Beats 100%)
+    public boolean isHappyMath(int n) {
+        // 1 and 7 are only happy numbers as single digits
+        while (n > 9) {
+            n = solve(n);
+        }
+        return n == 1 || n == 7;
+    }
+
+    // Approach 3: Floyd's Tortoise & Hare (O(1) Space Pointer Simulation)
     public boolean isHappyFloyd(int n) {
         int slow = n;
         int fast = solve(n);
@@ -78,17 +85,16 @@ public class LC202_HappyNumber {
     public static void main(String[] args) {
         LC202_HappyNumber solver = new LC202_HappyNumber();
 
-        // Test Case 1: 19 -> True (19 -> 82 -> 68 -> 100 -> 1)
+        // Test Case 1: 19 -> True
         System.out.println("Test 1 (19): " + solver.isHappy(19) + " (Expected: true)");
+        System.out.println("Math Test (19): " + solver.isHappyMath(19) + " (Expected: true)");
 
-        // Test Case 2: 2 -> False (Enters cycle starting at 4)
+        // Test Case 2: 2 -> False
         System.out.println("Test 2 (2): " + solver.isHappy(2) + " (Expected: false)");
+        System.out.println("Math Test (2): " + solver.isHappyMath(2) + " (Expected: false)");
 
-        // Test Case 3: 7 -> True (7 -> 49 -> 97 -> 130 -> 10 -> 1)
+        // Test Case 3: 7 -> True
         System.out.println("Test 3 (7): " + solver.isHappy(7) + " (Expected: true)");
-
-        // Floyd's test
-        System.out.println("Floyd Test (19): " + solver.isHappyFloyd(19) + " (Expected: true)");
-        System.out.println("Floyd Test (2): " + solver.isHappyFloyd(2) + " (Expected: false)");
+        System.out.println("Math Test (7): " + solver.isHappyMath(7) + " (Expected: true)");
     }
 }
